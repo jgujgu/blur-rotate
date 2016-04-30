@@ -25,27 +25,35 @@ class ImageManipulator(object):
             classname = driver[1]
             image_name = driver[2]
             src_dir = classname
-            self.rotate(image_name, src_dir, subject)
+            image = misc.imread(src_dir + "/" + image_name)
+            self.rotate(image, image_name, src_dir, subject)
+            self.blur(image, image_name, src_dir, subject)
+
+    def blur(self, image, image_name, src_dir, subject):
+        action = "blur"
+        blur_image = ndimage.gaussian_filter(image, sigma=3)
+        new_image_name = action + "_" + image_name
+        self.write_row(subject, src_dir, new_image_name, action)
+        misc.imsave(src_dir + "/" + new_image_name, blur_image)
 
     def write_row(self, subject, classname, image, action):
         csv_row = ",".join([subject, classname, image, action, "\n"])
         self.driver_csv_file.write(csv_row)
 
-    def rotate(self, image_name, src_dir, subject):
+    def rotate(self, image, image_name, src_dir, subject):
         action = "rotate"
         degrees_bottom = -15
         degrees_top = 16
         print(action)
         print(image_name)
         for degree in range(degrees_bottom, degrees_top):
-            image = misc.imread(src_dir + "/" + image_name)
             if degree == 0:
                 pass
             else:
-                rotate_img = ndimage.rotate(image, degree, reshape=False)
+                rotate_image = ndimage.rotate(image, degree, reshape=False)
                 new_image_name = action + str(degree) + "_" + image_name
                 self.write_row(subject, src_dir, new_image_name, action)
-                misc.imsave(src_dir + "/" + new_image_name, rotate_img)
+                misc.imsave(src_dir + "/" + new_image_name, rotate_image)
 
 if __name__ == '__main__':
     driver_csv = sys.argv[1]
